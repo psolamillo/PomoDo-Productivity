@@ -1,17 +1,14 @@
 import express from "express";
+import {
+  getDayStats,
+  getLifetimeStats,
+  getWeekStats,
+} from "../controllers/statsController.js";
 
 const router = express.Router();
 
-router.get("/day/:date", (req, res, next) => {
-  res.json({ message: "GET /api/stats/day/:date stub" });
-});
-
-router.get("/week", (req, res, next) => {
-  res.json({ message: "GET /api/stats/week stub" });
-});
-
-router.get("/lifetime", (req, res, next) => {
-  res.json({ message: "GET /api/stats/lifetime stub" });
-});
+router.get("/day/:date", getDayStats);
+router.get("/week", getWeekStats);
+router.get("/lifetime", getLifetimeStats);
 
 export default router;

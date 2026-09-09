@@ -1,9 +1,18 @@
 import express from "express";
+import {
+  createSession,
+  deleteSession,
+  getSessionById,
+  getSessions,
+  updateSession,
+} from "../controllers/sessionController.js";
 
 const router = express.Router();
 
-router.post("/", (req, res, next) => {
-  res.json({ message: "POST /api/sessions stub" });
-});
+router.get("/", getSessions);
+router.get("/:id", getSessionById);
+router.post("/", createSession);
+router.patch("/:id", updateSession);
+router.delete("/:id", deleteSession);
 
 export default router;
