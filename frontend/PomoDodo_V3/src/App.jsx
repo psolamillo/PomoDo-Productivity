@@ -1,5 +1,5 @@
-import { useState } from "react";
 import "./App.css";
+import ActivitySession from "./components/ActivitySession";
 import CreateActivityForm from "./components/CreateActivityForm";
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
     <>
       <h1>PomoDo-Productivity Tracker</h1>
       <CreateActivityForm />
+      <ActivitySession />
     </>
   );
 }
