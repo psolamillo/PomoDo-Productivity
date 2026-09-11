@@ -1,4 +1,5 @@
 import Activity from "../models/activity.js";
+import Session from "../models/session.js";
 
 export async function getActivities(req, res, next) {
   try {
@@ -73,6 +74,11 @@ export async function updateActivity(req, res, next) {
 export async function deleteActivity(req, res, next) {
   try {
     const { id } = req.params;
+
+    await Session.destroy({
+      where: { activityId: id },
+    });
+
     const deleted = await Activity.destroy({
       where: { id },
     });

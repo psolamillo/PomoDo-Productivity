@@ -147,6 +147,46 @@ export default function ActivitySession() {
     }
   };
 
+  const handleDeleteActivity = async (activity) => {
+    if (isToggling) {
+      return;
+    }
+
+    setIsToggling(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/activities/${activity.id}`,
+        { method: "DELETE" },
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to delete activity");
+      }
+
+      setActivities((previous) =>
+        previous.filter((item) => item.id !== activity.id),
+      );
+
+      if (activeActivityId === activity.id) {
+        setActiveActivityId(null);
+        setSessionIdsByActivity((previous) => ({
+          ...previous,
+          [activity.id]: null,
+        }));
+      }
+
+      await fetchTodaySessions();
+    } catch (deleteError) {
+      setError(deleteError.message || "Unable to delete activity.");
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
   const activeSessionId = activeActivityId
     ? sessionIdsByActivity[activeActivityId]
     : null;
@@ -168,23 +208,33 @@ export default function ActivitySession() {
           const isProductive = activity.type === "productive";
 
           return (
-            <button
-              key={activity.id}
-              type="button"
-              onClick={() => handleToggleSession(activity)}
-              disabled={isToggling}
-              className={`p-4 m-2 rounded-2xl border text-white transition-colors ${
-                isActive
-                  ? isProductive
-                    ? "bg-green-400 hover:bg-green-300 border-green-200 ring-2 ring-green-200"
-                    : "bg-red-400 hover:bg-red-300 border-red-200 ring-2 ring-red-200"
-                  : isProductive
-                    ? "bg-green-600 hover:bg-green-500 border-transparent"
-                    : "bg-red-600 hover:bg-red-500 border-transparent"
-              } ${isToggling ? "opacity-70" : "opacity-100"}`}
-            >
-              {isActive ? `Stop ${activity.name}` : `Start ${activity.name}`}
-            </button>
+            <div key={activity.id} className="relative m-2">
+              <button
+                type="button"
+                onClick={() => handleToggleSession(activity)}
+                disabled={isToggling}
+                className={`p-4 rounded-2xl border text-white transition-colors ${
+                  isActive
+                    ? isProductive
+                      ? "bg-green-400 hover:bg-green-300 border-green-200 ring-2 ring-green-200"
+                      : "bg-red-400 hover:bg-red-300 border-red-200 ring-2 ring-red-200"
+                    : isProductive
+                      ? "bg-green-600 hover:bg-green-500 border-transparent"
+                      : "bg-red-600 hover:bg-red-500 border-transparent"
+                } ${isToggling ? "opacity-70" : "opacity-100"}`}
+              >
+                {isActive ? `Stop ${activity.name}` : `Start ${activity.name}`}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteActivity(activity)}
+                disabled={isToggling}
+                aria-label={`Delete ${activity.name}`}
+                className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs font-bold text-white transition-colors hover:bg-gray-500 disabled:opacity-70"
+              >
+                &times;
+              </button>
+            </div>
           );
         })}
       </div>
