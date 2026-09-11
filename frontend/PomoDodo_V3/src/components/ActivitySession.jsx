@@ -147,6 +147,10 @@ export default function ActivitySession() {
     }
   };
 
+  const activeSessionId = activeActivityId
+    ? sessionIdsByActivity[activeActivityId]
+    : null;
+
   return (
     <section>
       <h3 className="text-lg p-2 font-bold">Activities</h3>
@@ -169,10 +173,14 @@ export default function ActivitySession() {
               type="button"
               onClick={() => handleToggleSession(activity)}
               disabled={isToggling}
-              className={`p-4 m-2 rounded-2xl border border-transparent text-white transition-colors ${
-                isProductive
-                  ? "bg-green-600 hover:bg-green-500"
-                  : "bg-red-600 hover:bg-red-500"
+              className={`p-4 m-2 rounded-2xl border text-white transition-colors ${
+                isActive
+                  ? isProductive
+                    ? "bg-green-400 hover:bg-green-300 border-green-200 ring-2 ring-green-200"
+                    : "bg-red-400 hover:bg-red-300 border-red-200 ring-2 ring-red-200"
+                  : isProductive
+                    ? "bg-green-600 hover:bg-green-500 border-transparent"
+                    : "bg-red-600 hover:bg-red-500 border-transparent"
               } ${isToggling ? "opacity-70" : "opacity-100"}`}
             >
               {isActive ? `Stop ${activity.name}` : `Start ${activity.name}`}
@@ -190,22 +198,32 @@ export default function ActivitySession() {
           <ul className="list-none p-0 m-0 mt-2 flex flex-col gap-2">
             {todaySessions.map((session) => {
               const isProductive = session.Activity?.type === "productive";
+              const isRunning = session.id === activeSessionId;
 
               return (
                 <li
                   key={session.id}
-                  className={`flex justify-between gap-4 rounded-lg border px-3 py-2 ${
-                    isProductive
-                      ? "bg-green-600 text-white"
-                      : "bg-red-600 text-white"
+                  className={`flex justify-between gap-4 rounded-lg border px-3 py-2 transition-colors ${
+                    isRunning
+                      ? isProductive
+                        ? "bg-green-400 border-green-200 ring-2 ring-green-200 text-white"
+                        : "bg-red-400 border-red-200 ring-2 ring-red-200 text-white"
+                      : isProductive
+                        ? "bg-green-600 text-white"
+                        : "bg-red-600 text-white"
                   }`}
                 >
                   <span className="font-semibold text-text-h">
                     {session.Activity?.name || "Activity"}
+                    {isRunning && (
+                      <span className="ml-2 text-xs font-bold uppercase tracking-wide">
+                        Running
+                      </span>
+                    )}
                   </span>
                   <span className="text-text">
                     {formatSessionTime(session.startedAt)} -{" "}
-                    {formatSessionTime(session.endedAt)}
+                    {isRunning ? "now" : formatSessionTime(session.endedAt)}
                   </span>
                 </li>
               );
