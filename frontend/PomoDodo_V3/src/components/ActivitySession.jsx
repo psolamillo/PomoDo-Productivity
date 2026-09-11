@@ -149,7 +149,7 @@ export default function ActivitySession() {
 
   return (
     <section>
-      <h3>Activities</h3>
+      <h3 className="text-lg p-2 font-bold">Activities</h3>
 
       {loading && <p>Loading activities...</p>}
       {error && <p>{error}</p>}
@@ -158,9 +158,10 @@ export default function ActivitySession() {
         <p>No activities available yet.</p>
       )}
 
-      <div className="activity-buttons">
+      <div className="flex flex-wrap gap-3 justify-center mt-5">
         {activities.map((activity) => {
           const isActive = activeActivityId === activity.id;
+          const isProductive = activity.type === "productive";
 
           return (
             <button
@@ -168,6 +169,11 @@ export default function ActivitySession() {
               type="button"
               onClick={() => handleToggleSession(activity)}
               disabled={isToggling}
+              className={`p-4 m-2 rounded-2xl border border-transparent text-white transition-colors ${
+                isProductive
+                  ? "bg-green-600 hover:bg-green-500"
+                  : "bg-red-600 hover:bg-red-500"
+              } ${isToggling ? "opacity-70" : "opacity-100"}`}
             >
               {isActive ? `Stop ${activity.name}` : `Start ${activity.name}`}
             </button>
@@ -175,24 +181,35 @@ export default function ActivitySession() {
         })}
       </div>
 
-      <div className="today-sessions">
-        <h4>Today&apos;s sessions</h4>
+      <div className="mt-8 text-left">
+        <h3 className="text-lg p-2 font-bold mt-2">Today&apos;s sessions</h3>
 
         {todaySessions.length === 0 ? (
           <p>No sessions created for the day yet.</p>
         ) : (
-          <ul className="session-list">
-            {todaySessions.map((session) => (
-              <li key={session.id} className="session-item">
-                <span className="session-name">
-                  {session.Activity?.name || "Activity"}
-                </span>
-                <span className="session-times">
-                  {formatSessionTime(session.startedAt)} -{" "}
-                  {formatSessionTime(session.endedAt)}
-                </span>
-              </li>
-            ))}
+          <ul className="list-none p-0 m-0 mt-2 flex flex-col gap-2">
+            {todaySessions.map((session) => {
+              const isProductive = session.Activity?.type === "productive";
+
+              return (
+                <li
+                  key={session.id}
+                  className={`flex justify-between gap-4 rounded-lg border px-3 py-2 ${
+                    isProductive
+                      ? "bg-green-600 text-white"
+                      : "bg-red-600 text-white"
+                  }`}
+                >
+                  <span className="font-semibold text-text-h">
+                    {session.Activity?.name || "Activity"}
+                  </span>
+                  <span className="text-text">
+                    {formatSessionTime(session.startedAt)} -{" "}
+                    {formatSessionTime(session.endedAt)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

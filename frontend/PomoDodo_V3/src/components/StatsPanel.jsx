@@ -99,7 +99,10 @@ export default function StatsPanel() {
     };
   }, [range, refreshKey, fetchStats]);
 
-  const totals = stats?.totals ?? { productiveSeconds: 0, unproductiveSeconds: 0 };
+  const totals = stats?.totals ?? {
+    productiveSeconds: 0,
+    unproductiveSeconds: 0,
+  };
   const totalSeconds = totals.productiveSeconds + totals.unproductiveSeconds;
   const productiveShare = totalSeconds
     ? Math.round((totals.productiveSeconds / totalSeconds) * 100)
@@ -119,15 +122,19 @@ export default function StatsPanel() {
   );
 
   return (
-    <section className="stats-panel">
-      <div className="stats-header">
-        <h3>Stats</h3>
-        <div className="stats-ranges">
+    <section className="mt-8 text-left">
+      <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+        <h3 className="text-lg p-2 font-bold">Stats</h3>
+        <div className="flex gap-2">
           {RANGES.map((option) => (
             <button
               key={option.key}
               type="button"
-              className={range === option.key ? "active" : ""}
+              className={`cursor-pointer px-3 py-1.5 border rounded-lg ${
+                option.key === range
+                  ? "bg-accent-bg border-accent-border text-text-h font-semibold"
+                  : "border-border bg-transparent text-text"
+              }`}
               onClick={() => setRange(option.key)}
             >
               {option.label}
@@ -141,30 +148,32 @@ export default function StatsPanel() {
 
       {!loading && !error && stats && (
         <>
-          <div className="stats-cards">
-            <div className="stat-card">
-              <span className="stat-value productive">
+          <div className="flex gap-3 flex-wrap mb-4 mt-2">
+            <div className="flex-1 min-w-[140px] flex flex-col gap-1 p-3 border border-border rounded-lg">
+              <span className="text-[1.4rem] font-bold text-[green]">
                 {formatDuration(totals.productiveSeconds)}
               </span>
-              <span className="stat-label">Productive</span>
+              <span className="text-[0.85rem] text-text">Productive</span>
             </div>
-            <div className="stat-card">
-              <span className="stat-value unproductive">
+            <div className="flex-1 min-w-[140px] flex flex-col gap-1 p-3 border border-border rounded-lg">
+              <span className="text-[1.4rem] font-bold text-[crimson]">
                 {formatDuration(totals.unproductiveSeconds)}
               </span>
-              <span className="stat-label">Unproductive</span>
+              <span className="text-[0.85rem] text-text">Unproductive</span>
             </div>
-            <div className="stat-card">
-              <span className="stat-value">{formatDuration(totalSeconds)}</span>
-              <span className="stat-label">Total tracked</span>
+            <div className="flex-1 min-w-[140px] flex flex-col gap-1 p-3 border border-border rounded-lg">
+              <span className="text-[1.4rem] font-bold text-text-h">
+                {formatDuration(totalSeconds)}
+              </span>
+              <span className="text-[0.85rem] text-text">Total tracked</span>
             </div>
           </div>
 
           {totalSeconds > 0 && (
-            <div className="stats-share">
-              <div className="stats-share-bar">
+            <div className="mb-4 mt-2">
+              <div className="h-2.5 rounded-[5px] bg-[crimson] overflow-hidden mb-1.5">
                 <div
-                  className="stats-share-productive"
+                  className="h-full bg-[green]"
                   style={{ width: `${productiveShare}%` }}
                 />
               </div>
@@ -173,7 +182,7 @@ export default function StatsPanel() {
           )}
 
           {range === "week" && weekDays.length > 0 && (
-            <div className="stats-week">
+            <div className="flex gap-3 items-end mb-4 mt-2">
               {weekDays.map((day) => {
                 const dayTotal =
                   day.productiveSeconds + day.unproductiveSeconds;
@@ -187,20 +196,20 @@ export default function StatsPanel() {
                 return (
                   <div
                     key={day.date}
-                    className="stats-week-day"
+                    className="flex-1 flex flex-col items-center gap-1.5"
                     title={`${day.date}: ${formatDuration(dayTotal)}`}
                   >
-                    <div className="stats-week-bar">
+                    <div className="h-20 w-full max-w-10 flex flex-col-reverse rounded overflow-hidden bg-code-bg">
                       <div
-                        className="stats-week-segment unproductive"
+                        className="bg-[crimson]"
                         style={{ height: `${unproductiveHeight}%` }}
                       />
                       <div
-                        className="stats-week-segment productive"
+                        className="bg-[green]"
                         style={{ height: `${productiveHeight}%` }}
                       />
                     </div>
-                    <span className="stats-week-label">
+                    <span className="text-xs text-text">
                       {formatDayLabel(day.date)}
                     </span>
                   </div>
@@ -209,19 +218,28 @@ export default function StatsPanel() {
             </div>
           )}
 
-          <div className="stats-activities">
-            <h4>By activity</h4>
+          <div>
+            <h4 className="mb-3 text-lg text-text-h">Activity breakdown</h4>
 
             {byActivity.length === 0 ? (
               <p>No tracked time in this range yet.</p>
             ) : (
-              <ul className="stats-activity-list">
+              <ul className="list-none p-0 m-0 flex flex-col gap-2">
                 {byActivity.map((entry) => (
-                  <li key={entry.activityId} className="stats-activity-row">
-                    <span className="stats-activity-name">{entry.name}</span>
-                    <div className="stats-activity-track">
+                  <li
+                    key={entry.activityId}
+                    className="grid grid-cols-[minmax(120px,1fr)_2fr_minmax(64px,auto)] items-center gap-3"
+                  >
+                    <span className="font-semibold text-text-h">
+                      {entry.name}
+                    </span>
+                    <div className="h-2.5 rounded-[5px] bg-code-bg overflow-hidden">
                       <div
-                        className={`stats-activity-bar ${entry.type}`}
+                        className={`h-full ${
+                          entry.type === "productive"
+                            ? "bg-[green]"
+                            : "bg-[crimson]"
+                        }`}
                         style={{
                           width: maxActivitySeconds
                             ? `${(entry.totalSeconds / maxActivitySeconds) * 100}%`
@@ -229,7 +247,7 @@ export default function StatsPanel() {
                         }}
                       />
                     </div>
-                    <span className="stats-activity-time">
+                    <span className="text-right text-text">
                       {formatDuration(entry.totalSeconds)}
                     </span>
                   </li>
