@@ -37,6 +37,7 @@ export default function ActivitySession() {
     );
 
     setTodaySessions(sortedSessions);
+    window.dispatchEvent(new Event("session-updated"));
   }, []);
 
   useEffect(() => {
